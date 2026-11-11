@@ -107,3 +107,27 @@ export interface SiteData {
   /** True when env vars are missing or the read failed: pages render an empty state. */
   unavailable: boolean;
 }
+
+/** One public (verified) change_log row. entity_ref exists after migration 0005; null before. */
+export interface ChangeEntry {
+  id: string;
+  vendorSlug: string;
+  vendorName: string;
+  entity_type: string;
+  entity_ref: string | null;
+  change_type: string;
+  field: string | null;
+  old_value: string | null;
+  new_value: string | null;
+  summary: string | null;
+  source_url: string | null;
+  detected_at: string;
+  effective_at: string | null;
+  confirmed_at: string | null;
+  confirmed_by: string | null;
+}
+
+export interface ChangeLogData {
+  entries: ChangeEntry[];
+  unavailable: boolean;
+}

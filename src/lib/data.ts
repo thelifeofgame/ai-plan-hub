@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Model, Plan, PlanData, PlanModel, PlanPrice, Quota, QuotaView, SiteData, Vendor, VendorData } from "./types";
+import type { ChangeEntry, ChangeLogData, Model, Plan, PlanData, PlanModel, PlanPrice, Quota, QuotaView, SiteData, Vendor, VendorData } from "./types";
 
 // Read-only access with the public anon key. RLS already limits child tables to verified rows;
 // we filter again below so an unverified row can never reach a page.
@@ -77,5 +77,46 @@ export async function getSiteData(): Promise<SiteData> {
   } catch (e) {
     console.error("Supabase read threw", e);
     return { vendors: [], unavailable: true };
+  }
+}
+
+/** Verified change_log rows only (RLS also enforces this), newest first. */
+export async function getChangeLog(): Promise<ChangeLogData> {
+  const sb = client();
+  if (!sb) return { entries: [], unavailable: true };
+  try {
+    const [v, c] = await Promise.all([sb.from("vendors").select("id, slug, name"), sb.from("change_log").select("*").order("detected_at", { ascending: false })]);
+    if (v.error || c.error) {
+      console.error("Supabase change_log read failed", v.error?.message, c.error?.message);
+      return { entries: [], unavailable: true };
+    }
+    const vendorById = new Map((v.data ?? []).map((x: { id: string; slug: string; name: string }) => [x.id, x]));
+    const entries: ChangeEntry[] = verified(c.data as (Record<string, unknown> & { verification_status: string })[]).flatMap((r) => {
+      const vendor = vendorById.get(r.vendor_id as string);
+      if (!vendor) return [];
+      return [
+        {
+          id: r.id as string,
+          vendorSlug: vendor.slug,
+          vendorName: vendor.name,
+          entity_type: r.entity_type as string,
+          entity_ref: (r.entity_ref as string | null | undefined) ?? null,
+          change_type: r.change_type as string,
+          field: (r.field as string | null) ?? null,
+          old_value: (r.old_value as string | null) ?? null,
+          new_value: (r.new_value as string | null) ?? null,
+          summary: (r.summary as string | null) ?? null,
+          source_url: (r.source_url as string | null) ?? null,
+          detected_at: r.detected_at as string,
+          effective_at: (r.effective_at as string | null) ?? null,
+          confirmed_at: (r.confirmed_at as string | null) ?? null,
+          confirmed_by: (r.confirmed_by as string | null) ?? null,
+        },
+      ];
+    });
+    return { entries, unavailable: false };
+  } catch (e) {
+    console.error("Supabase change_log read threw", e);
+    return { entries: [], unavailable: true };
   }
 }

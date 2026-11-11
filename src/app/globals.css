@@ -41,3 +41,6 @@ q.quote::before, q.quote::after { content: ""; }
 .prose { max-width: 70ch; }
 .todo { font-size: .8rem; color: var(--muted); }
 .cta { border: 1px solid var(--line); padding: 1rem; margin: 2rem 0; background: var(--soft); }
+.changelog li { border-top: 1px solid var(--line); padding: .75rem 0; }
+.changelog h3 { margin: 0 0 .25rem; font-size: 1rem; }
+.changelog p { margin: .15rem 0; }

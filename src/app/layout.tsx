@@ -35,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <nav aria-label="Main">
               <Link href="/compare">Compare plans</Link>
+              <Link href="/changelog">Changelog</Link>
               <Link href="/status">Status pages</Link>
             </nav>
           </div>
