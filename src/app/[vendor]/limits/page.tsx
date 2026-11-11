@@ -9,7 +9,7 @@ import { ReminderCta } from "@/components/ReminderCta";
 import { SourceLink } from "@/components/SourceLink";
 import { Text } from "@/components/Text";
 import { domainOf, featureLabel, limitLabel, windowLabel } from "@/lib/format";
-import { limitsFaq, poolFaq, resetFaq, whereFaq } from "@/lib/faq";
+import { costFaq, limitsFaq, modelsFaq, overageFaq, poolFaq, resetFaq, whereFaq } from "@/lib/faq";
 import { formatDate, needsRecheck } from "@/lib/fresh";
 import { loadSiteData } from "@/lib/load";
 import { eligiblePairs, pairLabel, pairsForVendor, vendorHasQuotas, vendorNewestQuota, vendorNoindex } from "@/lib/pages";
@@ -53,7 +53,7 @@ export default async function LimitsPage({ params }: { params: Promise<{ vendor:
   const newest = vendorNewestQuota(v);
   const plans = v.plans.filter((p) => p.quotas.length > 0);
   const baseName = (s: string) => v.plans.find((p) => p.plan.slug === s)?.plan.name ?? s;
-  const faq = [...resetFaq(v), ...whereFaq(v), ...poolFaq(v), ...plans.flatMap((p) => limitsFaq(v, p))];
+  const faq = [...resetFaq(v), ...whereFaq(v), ...poolFaq(v), ...plans.flatMap((p) => [...costFaq(p), ...limitsFaq(v, p), ...modelsFaq(p), ...overageFaq(p)])];
   const pairs = pairsForVendor(eligiblePairs(d), slug).slice(0, 6);
   const crumbs = [
     { name: "Home", path: "/" },

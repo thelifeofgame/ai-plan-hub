@@ -12,7 +12,7 @@ import { ValueSection } from "@/components/ValueSection";
 import { BENCHMARKS, BENCHMARK_LINKS_RETRIEVED_AT } from "@/config/benchmarks";
 import { pairBySlug } from "@/config/pairs";
 import { SITE_NAME } from "@/config/site";
-import { vsFaq } from "@/lib/faq";
+import { costFaq, limitsFaq, modelsFaq, resetFaq, vsFaq, whereFaq } from "@/lib/faq";
 import { formatDate } from "@/lib/fresh";
 import { loadSiteData } from "@/lib/load";
 import { eligiblePairs, pairLabel, pairNewest, pairNoindex, relatedPairs, resolvePair, vendorHasQuotas } from "@/lib/pages";
@@ -36,6 +36,7 @@ export async function vsMetadata(slug: string): Promise<Metadata> {
   const newest = pairNewest(r);
   return pageMetadata({
     path: `/${slug}`,
+    // Year = calendar year of the latest last_verified_at among this pair's records (never the build year).
     title: `${pairLabel(r)}: Price, Limits, and Reset Windows${titleYear(newest)}`,
     description: `${pairLabel(r)} \u2014 official prices, published usage limits, and reset rules, last verified ${formatDate(newest)}. Value is compared only when both plans share the same vendor and the same unit or base. We do not invent message counts.`,
     noindex: pairNoindex(r),
@@ -56,7 +57,12 @@ export async function VsPage({ slug }: { slug: string }) {
     { name: "Compare", path: "/compare" },
     { name: label, path: `/${slug}` },
   ];
-  const faq = vsFaq(a, b);
+  const vendorsOnPage = sameVendor ? [r.leftVendor] : [r.leftVendor, r.rightVendor];
+  const faq = [
+    ...vsFaq(a, b),
+    ...[a, b].flatMap((x) => [...costFaq(x.pd), ...limitsFaq(x.v, x.pd), ...modelsFaq(x.pd)]),
+    ...vendorsOnPage.flatMap((v) => [...resetFaq(v), ...whereFaq(v)]),
+  ];
   const related = relatedPairs(eligiblePairs(d), r);
 
   // Same-vendor only: keep just the groups (and rows) of these two plans, and only if both have a computed number.

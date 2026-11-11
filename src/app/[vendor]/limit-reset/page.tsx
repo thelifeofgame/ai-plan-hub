@@ -9,7 +9,7 @@ import { ReminderCta } from "@/components/ReminderCta";
 import { SourceLink } from "@/components/SourceLink";
 import { Text } from "@/components/Text";
 import { domainOf, featureLabel, windowLabel } from "@/lib/format";
-import { overageFaq, resetFaq, whereFaq } from "@/lib/faq";
+import { costFaq, limitsFaq, modelsFaq, overageFaq, poolFaq, resetFaq, whereFaq } from "@/lib/faq";
 import { formatDate, needsRecheck } from "@/lib/fresh";
 import { loadSiteData } from "@/lib/load";
 import { vendorHasQuotas, vendorNewestQuota, vendorNoindex } from "@/lib/pages";
@@ -54,7 +54,7 @@ export default async function LimitResetPage({ params }: { params: Promise<{ ven
   const rules = rows.filter((r) => r.q.reset_rule);
   const where = Array.from(new Set(rows.map((r) => r.q.reset_visible_in).filter((w): w is string => !!w)));
   const withOverage = plans.filter((p) => p.plan.overage_options);
-  const faq = [...resetFaq(v), ...whereFaq(v), ...withOverage.flatMap((p) => overageFaq(p))];
+  const faq = [...resetFaq(v), ...whereFaq(v), ...poolFaq(v), ...plans.flatMap((p) => [...costFaq(p), ...limitsFaq(v, p, "limits page"), ...modelsFaq(p), ...overageFaq(p)])];
   const crumbs = [
     { name: "Home", path: "/" },
     { name, path: `/${slug}` },
