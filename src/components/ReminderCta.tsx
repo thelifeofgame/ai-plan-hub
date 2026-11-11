@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { REMINDER_CTA_ENABLED } from "@/config/site";
 
-export type CtaPlacement = "home" | "compare" | "vendor" | "status" | "limit-reset" | "header" | "footer";
+export type CtaPlacement = "home" | "compare" | "vendor" | "status" | "limit-reset" | "limits" | "vs" | "header" | "footer";
 
 /**
  * Reset-reminder CTA. Hidden while REMINDER_CTA_ENABLED is false (M0): the signup form and /reminders do not exist yet.

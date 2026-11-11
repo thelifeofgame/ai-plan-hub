@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   // The root layout covers every page (home, compare, vendor pages, changelog and later routes).
   revalidatePath("/", "layout");
   // Metadata routes are not pages: refresh them explicitly.
-  revalidatePath("/sitemap.xml");
+  for (const f of ["sitemap.xml", "sitemap-core.xml", "sitemap-limits.xml", "sitemap-reset.xml", "sitemap-vs.xml", "sitemap-changelog.xml"]) revalidatePath(`/${f}`);
   revalidatePath("/robots.txt");
   return NextResponse.json({ ok: true, revalidatedAt: new Date().toISOString() });
 }

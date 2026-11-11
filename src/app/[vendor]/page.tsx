@@ -10,6 +10,9 @@ import { ValueSection } from "@/components/ValueSection";
 import { BENCHMARKS, BENCHMARK_LINKS_RETRIEVED_AT } from "@/config/benchmarks";
 import { STALE_WARN_DAYS } from "@/config/site";
 import { allRowsStale, formatDate } from "@/lib/fresh";
+import { pairBySlug } from "@/config/pairs";
+import { eligiblePairs, pairLabel, pairsForVendor, vendorHasQuotas } from "@/lib/pages";
+import { VsPage, vsMetadata } from "@/views/VsPage";
 import { loadSiteData } from "@/lib/load";
 import { pageJsonLd, pageMetadata, titleYear } from "@/lib/seo";
 import { valueGroups } from "@/lib/value";
@@ -20,9 +23,10 @@ export const revalidate = 3600;
 // Slugs come from the database (vendors.slug). A vendor added later renders on first request, then is cached.
 export const dynamicParams = true;
 
+// One dynamic segment serves two page types: a vendor slug, or a configured vs-pair slug ("a-vs-b").
 export async function generateStaticParams() {
   const d = await loadSiteData();
-  return d.vendors.map((v) => ({ vendor: v.vendor.slug }));
+  return [...d.vendors.map((v) => ({ vendor: v.vendor.slug })), ...eligiblePairs(d).map((r) => ({ vendor: r.slug }))];
 }
 
 async function find(slug: string) {
@@ -34,6 +38,7 @@ const newestOf = (dates: (string | null)[]) => dates.filter((x): x is string => 
 
 export async function generateMetadata({ params }: { params: Promise<{ vendor: string }> }): Promise<Metadata> {
   const { vendor: slug } = await params;
+  if (pairBySlug(slug)) return vsMetadata(slug);
   const v = await find(slug);
   if (!v) return { title: "Not found", robots: { index: false, follow: false } };
   const newest = newestOf(v.plans.map((p) => p.newestVerifiedAt));
@@ -48,8 +53,10 @@ export async function generateMetadata({ params }: { params: Promise<{ vendor: s
 
 export default async function VendorPage({ params }: { params: Promise<{ vendor: string }> }) {
   const { vendor: slug } = await params;
+  if (pairBySlug(slug)) return <VsPage slug={slug} />;
   const v = await find(slug);
   if (!v) notFound();
+  const pairs = pairsForVendor(eligiblePairs(await loadSiteData()), slug);
   const views = v.plans.map((p) => planView(v, p));
   const newest = newestOf(v.plans.map((p) => p.newestVerifiedAt));
   const name = v.vendor.name;
@@ -72,6 +79,12 @@ export default async function VendorPage({ params }: { params: Promise<{ vendor:
       <p>
         {v.vendor.company ? <span className="muted small">Operated by {v.vendor.company}. </span> : null}
         <Link href="/compare">Compare with other vendors</Link> &middot; <Link href="/status">Official status pages</Link>
+        {vendorHasQuotas(v) ? (
+          <>
+            {" "}
+            &middot; <Link href={`/${slug}/limits`}>Full limits</Link> &middot; <Link href={`/${slug}/limit-reset`}>When limits reset</Link>
+          </>
+        ) : null}
       </p>
 
       {views.length === 0 ? (
@@ -152,6 +165,19 @@ export default async function VendorPage({ params }: { params: Promise<{ vendor:
           <ValueSection vendorName={name} groups={valueGroups(v)} />
         </>
       )}
+
+      {pairs.length > 0 ? (
+        <>
+          <h2>Compared with other plans</h2>
+          <ul className="plain">
+            {pairs.map((x) => (
+              <li key={x.slug}>
+                <Link href={`/${x.slug}`}>{pairLabel(x)}</Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
 
       <h2>Model quality is not our score</h2>
       <p className="prose">

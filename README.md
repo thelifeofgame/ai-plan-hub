@@ -35,7 +35,7 @@ npm run lint && npm run build
 
 ## After a data reimport: refresh the site
 
-Pages are statically generated and refresh on their own every hour (ISR). To refresh immediately after a CSV reimport, call the revalidation route. It refreshes every page (home, compare, vendor pages, changelog, and any page added later), plus `sitemap.xml` and `robots.txt`:
+Pages are statically generated and refresh on their own every hour (ISR). To refresh immediately after a CSV reimport, call the revalidation route. It refreshes every page (home, compare, vendor pages, vs pages, `/[vendor]/limits`, `/[vendor]/limit-reset`, changelog, and any page added later), plus `robots.txt` and every sitemap file:
 
 ```bash
 curl -X POST https://<site-host>/api/revalidate -H "x-revalidate-secret: <REVALIDATE_SECRET>"
@@ -47,3 +47,10 @@ Take the secret from the Vercel environment settings; never paste it into the re
 ## Changelog data
 
 `/changelog` reads verified rows of `change_log` from Supabase. The import format and the migration (`migrations/0005_change_log_import.sql`: adds `entity_ref`, `dedupe_key` and a unique index) live in the data workspace, not in this repo. The page works before and after that migration is applied.
+
+## Programmatic pages (M1-4)
+
+- `/{a}-vs-{b}`: only the pairs in `src/config/pairs.ts` (13, one vendor-or-two, never three). The reverse slug 301-redirects to the configured one. Both plans must be verified; if either loses verification the page is no longer generated (404) after the next revalidation.
+- `/{vendor}/limits` and `/{vendor}/limit-reset`: need at least one verified, sourced quota row.
+- Everything is read from the fact tables (`plans`, `plan_prices`, `quotas`, ...). The change log is never used to decide what exists.
+- Sitemaps (`/sitemap.xml` index plus `sitemap-core|limits|reset|vs|changelog.xml`) are empty unless `VERCEL_ENV=production` and `ALLOW_INDEXING=true`.

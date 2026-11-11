@@ -14,8 +14,8 @@ const DESCRIPTION = "A dated log of AI plan, price, and usage-rule changes for C
 
 export async function generateMetadata(): Promise<Metadata> {
   const d = await loadChangeLog();
-  // An empty hub is indexable once launched ("no confirmed changes yet"); only a failed read is noindex.
-  return pageMetadata({ path: "/changelog", title: TITLE, description: DESCRIPTION, noindex: d.unavailable });
+  // No thin pages: noindex while there are no verified entries (or the read failed); indexable once it has entries.
+  return pageMetadata({ path: "/changelog", title: TITLE, description: DESCRIPTION, noindex: d.unavailable || d.entries.length === 0 });
 }
 
 export default async function ChangelogPage() {

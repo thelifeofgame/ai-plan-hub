@@ -11,6 +11,7 @@ import { STALE_WARN_DAYS } from "@/config/site";
 import { formatDate, vendorsAllStale } from "@/lib/fresh";
 import { loadSiteData } from "@/lib/load";
 import { pageJsonLd, pageMetadata, titleYear } from "@/lib/seo";
+import { eligiblePairs, pairLabel } from "@/lib/pages";
 import { valueGroups } from "@/lib/value";
 import { allPlanViews } from "@/lib/views";
 
@@ -34,6 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ComparePage() {
   const d = await loadSiteData();
   const rows = allPlanViews(d.vendors);
+  const pairs = eligiblePairs(d);
   const newest = newestOf(d.vendors);
   const crumbs = [
     { name: "Home", path: "/" },
@@ -141,6 +143,19 @@ export default async function ComparePage() {
           {". We list those vendor pages here; we do not invent a live outage badge in this first release."}
         </p>
       </div>
+
+      {pairs.length > 0 ? (
+        <>
+          <h2>Compared elsewhere</h2>
+          <ul className="plain">
+            {pairs.map((x) => (
+              <li key={x.slug}>
+                <Link href={`/${x.slug}`}>{pairLabel(x)}</Link>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
 
       <ReminderCta placement="compare" />
 
