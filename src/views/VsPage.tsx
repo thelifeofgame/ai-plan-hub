@@ -111,7 +111,7 @@ export async function VsPage({ slug }: { slug: string }) {
               <th scope="row">Plan status and audience</th>
               {views.map((v) => (
                 <td key={v.planSlug}>
-                  {v.planStatus ?? "not published"}
+                  {v.planStatus ?? "Not published"}
                   {v.audience ? `, ${v.audience}` : ""}
                 </td>
               ))}
