@@ -82,7 +82,7 @@ export default async function ComparePage() {
       {rows.length === 0 ? <Empty /> : <CompareTable rows={rows} />}
 
       <div className="prose">
-        <h2>How we calculate value per dollar</h2>
+        <h2 id="methodology">How we calculate value per dollar</h2>
         <p>
           {"Most allowances in this table are official multipliers, and each vendor uses a different base plan. Cross-vendor value is not comparable. We never convert one vendor's units into another vendor's units, and we never invent a shared \"messages per dollar\" index."}
         </p>

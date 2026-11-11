@@ -34,9 +34,12 @@ export default function StatusPage() {
       />
       <Breadcrumbs crumbs={crumbs} />
       <h1>Official AI provider status pages</h1>
-      {/* TODO(SEO copy): placeholder body. M1 adds parsed status data; this page stays noindex until then. */}
       <p className="lead prose">
-        This is a first, simple version: links to each vendor&apos;s official status page. We do not show a live &quot;operational&quot; or incident badge and we do not invent outage reports.
+        This page is a placeholder list of official status-page links. We do not show live status, uptime, or incident badges, and we do not invent outage reports. This page is not indexed in this
+        release.
+      </p>
+      <p className="prose">
+        For Gemini, the link is the Google Workspace Status Dashboard. We have not found an official status page for the consumer Gemini app.
       </p>
       <div className="tablewrap">
         <table className="data narrow">

@@ -64,10 +64,10 @@ export default async function VendorPage({ params }: { params: Promise<{ vendor:
       <JsonLd data={pageJsonLd({ path: `/${slug}`, name: `${name} plans, prices, and limits`, description, dateModified: newest, crumbs, items: views.map((p) => ({ name: p.planName })) })} />
       <Breadcrumbs crumbs={crumbs} />
       <h1>{name} plans, prices, and limits</h1>
-      {/* TODO(SEO copy): neutral placeholder intro. */}
       <p className="lead prose">
-        Current {name} plans with official prices, included models, usage-limit wording, and reset rules. Every row links to the official source and shows when it was last verified. Last verified:{" "}
-        {formatDate(newest)}. We do not publish a message count the vendor has not published.
+        These are the current {name} plans we have verified. Prices, included models, usage-limit wording, and reset rules come from official {name} pages. Each row links to its source and shows its
+        last-verified date (most recent on this page: {formatDate(newest)}). Unverified rows are not shown. We quote the vendor&apos;s own wording and do not invent a message count. {name} allowances are
+        not converted into another vendor&apos;s units.
       </p>
       <p>
         {v.vendor.company ? <span className="muted small">Operated by {v.vendor.company}. </span> : null}

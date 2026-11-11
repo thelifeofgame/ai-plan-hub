@@ -48,10 +48,10 @@ export default async function Home() {
       />
       <Breadcrumbs crumbs={crumbs} />
       <h1>Know your AI plan limits &mdash; and when they reset</h1>
-      {/* TODO(SEO copy): neutral placeholder promise paragraph. */}
       <p className="lead prose">
-        Compare current ChatGPT, Claude, Gemini, and Grok plans by official price, published usage limits, and reset rules, and open each vendor&apos;s official status page. Every row links to the official
-        source and shows when it was last verified.
+        {SITE_NAME} lists official prices, published usage limits, and reset rules for current ChatGPT, Claude, Gemini, and Grok plans. Every row links to the official source we used and shows its
+        last-verified date. Unverified rows are not shown. We do not invent message counts or a global reset time, and we do not treat one vendor&apos;s allowance as comparable to another&apos;s. To
+        tell a usage cap from an outage, start with each vendor&apos;s official status-page link.
       </p>
 
       {d.vendors.length === 0 ? (

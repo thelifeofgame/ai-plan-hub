@@ -1,4 +1,4 @@
-// M0 /status: static list of official status pages (source: data editor review 2026-11-11, ia.md 3.8 and 10.3).
+// M0 /status: static list of official status pages (source: data editor review 2026-11-11, ia.md 3.8).
 // No live status is polled or shown. Placeholder wording is marked for the SEO teammate.
 export const STATUS_LINKS_CHECKED_AT = "2026-11-11";
 
@@ -31,7 +31,7 @@ export const STATUS_LINKS: StatusLink[] = [
   {
     vendorSlug: "gemini",
     vendorName: "Gemini",
-    url: "https://aistudio.google.com/status",
-    note: "Official status page for Google AI Studio and the Gemini API. The consumer Gemini app has no official status page of its own, so this page does not cover it.",
+    url: "https://www.google.com/appsstatus/dashboard/",
+    note: "Google Workspace Status Dashboard (it includes Gemini / Gemini Notebook rows). A dedicated official status page for the consumer Gemini app has not been found, so this is a stand-in, not a personal-app status board.",
   },
 ];
