@@ -16,6 +16,10 @@ export async function POST(request: Request) {
   if (!secret) return NextResponse.json({ ok: false, error: "not configured" }, { status: 503 });
   const given = request.headers.get("x-revalidate-secret") ?? "";
   if (!same(given, secret)) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  // The root layout covers every page (home, compare, vendor pages, changelog and later routes).
   revalidatePath("/", "layout");
+  // Metadata routes are not pages: refresh them explicitly.
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/robots.txt");
   return NextResponse.json({ ok: true, revalidatedAt: new Date().toISOString() });
 }

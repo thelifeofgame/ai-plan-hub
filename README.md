@@ -32,3 +32,18 @@ npm run lint && npm run build
 - Value per dollar (`src/lib/value.ts`): only inside one vendor, same unit and window; multipliers resolved by chain to the 1x baseline; ranges never turned into a number; free plans excluded.
 - Benchmarks (LMArena, Artificial Analysis) live in `src/config/benchmarks.ts`.
 - Reminder CTA (`src/components/ReminderCta.tsx`) is hidden by `REMINDER_CTA_ENABLED = false`.
+
+## After a data reimport: refresh the site
+
+Pages are statically generated and refresh on their own every hour (ISR). To refresh immediately after a CSV reimport, call the revalidation route. It refreshes every page (home, compare, vendor pages, changelog, and any page added later), plus `sitemap.xml` and `robots.txt`:
+
+```bash
+curl -X POST https://<site-host>/api/revalidate -H "x-revalidate-secret: <REVALIDATE_SECRET>"
+# {"ok":true,"revalidatedAt":"..."}  (401 = wrong secret, 503 = REVALIDATE_SECRET not set on that deployment)
+```
+
+Take the secret from the Vercel environment settings; never paste it into the repo, chat or shared files.
+
+## Changelog data
+
+`/changelog` reads verified rows of `change_log` from Supabase. The import format and the migration (`migrations/0005_change_log_import.sql`: adds `entity_ref`, `dedupe_key` and a unique index) live in the data workspace, not in this repo. The page works before and after that migration is applied.
