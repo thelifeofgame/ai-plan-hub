@@ -2,20 +2,25 @@ import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ChangelogList } from "@/components/ChangelogList";
 import { JsonLd } from "@/components/JsonLd";
+import { SITE_NAME } from "@/config/site";
 import { loadChangeLog } from "@/lib/load";
 import { pageJsonLd, pageMetadata } from "@/lib/seo";
 
 // Segment config must be a literal. Keep in sync with REVALIDATE_SECONDS in src/config/site.ts.
 export const revalidate = 3600;
 
-// Title, description and H1 are from ia.md section 3.9. TODO(SEO copy): intro paragraph below is a neutral placeholder.
-const TITLE = "AI Plan and Limit Changes \u2014 Changelog";
-const DESCRIPTION = "A dated log of AI plan, price, and usage-rule changes for ChatGPT, Claude, Gemini, and Grok. Each entry links to the official source and shows when we confirmed it.";
+// Copy is from copy-m1.md (SEO), word for word.
+const TITLE = `AI Plan Changelog: Price, Limit, and Reset Rule Changes | ${SITE_NAME}`;
+const DESCRIPTION = "A dated, source-linked log of changes to ChatGPT, Claude, Grok, and Gemini plans, covering prices, included models, usage limits, and reset rules.";
+const H1 = "AI plan changelog";
+const INTRO =
+  "A dated log of confirmed changes to ChatGPT, Claude, Grok, and Gemini subscription plans: prices, included models, usage limits, and reset rules. Each entry links to the official source and shows when we verified it. Changes we have detected but not yet confirmed are not listed.";
+const EMPTY = "No confirmed changes yet. Entries appear here once a change has been verified against the official source.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const d = await loadChangeLog();
-  // An empty hub is indexable once launched ("no confirmed changes yet"); only a failed read is noindex.
-  return pageMetadata({ path: "/changelog", title: TITLE, description: DESCRIPTION, noindex: d.unavailable });
+  // No thin pages: noindex while there are no verified entries (or the read failed); indexable once it has entries.
+  return pageMetadata({ path: "/changelog", title: TITLE, description: DESCRIPTION, noindex: d.unavailable || d.entries.length === 0 });
 }
 
 export default async function ChangelogPage() {
@@ -30,7 +35,7 @@ export default async function ChangelogPage() {
       <JsonLd
         data={pageJsonLd({
           path: "/changelog",
-          name: "Changelog: AI plan and limit changes",
+          name: H1,
           description: DESCRIPTION,
           dateModified: newest,
           crumbs,
@@ -38,14 +43,11 @@ export default async function ChangelogPage() {
         })}
       />
       <Breadcrumbs crumbs={crumbs} />
-      <h1>Changelog: AI plan and limit changes</h1>
-      <p className="lead prose">
-        Confirmed changes to plans, prices, and usage rules, newest first. Each entry links to the official source and shows the date we verified it. A change that has been detected but not yet
-        confirmed is not listed here, and the old value stays live until it is confirmed.
-      </p>
+      <h1>{H1}</h1>
+      <p className="lead prose">{INTRO}</p>
       {d.entries.length === 0 ? (
         <p className="empty" role="status">
-          {d.unavailable ? "The changelog is temporarily unavailable." : "No confirmed changes yet. Entries appear here once a change has been checked against the official source."}
+          {d.unavailable ? "The changelog is temporarily unavailable." : EMPTY}
         </p>
       ) : (
         <ChangelogList entries={d.entries} />

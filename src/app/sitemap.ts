@@ -18,6 +18,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (v.plans.length > 0 && !allRowsStale(v.plans.map((p) => p.newestVerifiedAt))) out.push({ url: canonicalUrl(`/${v.vendor.slug}`) });
   }
   const log = await loadChangeLog();
-  if (!log.unavailable) out.push({ url: canonicalUrl("/changelog") });
+  if (!log.unavailable && log.entries.length > 0) out.push({ url: canonicalUrl("/changelog") });
   return out;
 }
