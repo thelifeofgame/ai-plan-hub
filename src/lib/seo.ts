@@ -32,8 +32,8 @@ export interface Crumb {
   path: string;
 }
 
-/** WebPage + BreadcrumbList (+ optional ItemList). No Offer, no FAQPage (no sourced FAQ in M0). */
-export function pageJsonLd(opts: { path: string; name: string; description: string; dateModified: string | null; crumbs: Crumb[]; items?: { name: string; path?: string }[] }) {
+/** WebPage + BreadcrumbList (+ optional ItemList, FAQPage). No Offer. */
+export function pageJsonLd(opts: { path: string; name: string; description: string; dateModified: string | null; crumbs: Crumb[]; items?: { name: string; path?: string }[]; faq?: { q: string; a: string }[] }) {
   const url = canonicalUrl(opts.path);
   const graph: Record<string, unknown>[] = [
     {
@@ -55,6 +55,10 @@ export function pageJsonLd(opts: { path: string; name: string; description: stri
       "@type": "ItemList",
       itemListElement: opts.items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, ...(it.path ? { url: canonicalUrl(it.path) } : {}) })),
     });
+  }
+  // FAQPage only when every visible Q&A is sourced (src/lib/faq.ts only builds sourced items).
+  if (opts.faq && opts.faq.length > 0) {
+    graph.push({ "@type": "FAQPage", mainEntity: opts.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) });
   }
   return { "@context": "https://schema.org", "@graph": graph };
 }
