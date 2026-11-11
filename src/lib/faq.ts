@@ -6,9 +6,15 @@ import type { PlanData, QuotaView, VendorData } from "./types";
 
 export interface FaqItem {
   q: string;
+  /** Full visible answer text; the same string goes into FAQPage JSON-LD. */
   a: string;
   sources: string[];
+  /** When set, `a` ends with `link.label`, which is shown as a link to `link.href`. */
+  link?: { label: string; href: string };
 }
+
+/** More distinct reset rules than this and the reset FAQ becomes a summary plus a link to the #reset-rules table (m1-pseo.md supplement). */
+export const RESET_FAQ_MAX_RULES = 4;
 
 const uniq = <T,>(xs: T[]) => Array.from(new Set(xs));
 const baseNameOf = (v: VendorData) => (slug: string) => v.plans.find((p) => p.plan.slug === slug)?.plan.name ?? slug;
@@ -52,17 +58,24 @@ export function limitsFaq(v: VendorData, pd: PlanData, listAt: "table above" | "
   return [{ q: `What are the usage limits on ${pd.plan.name}?`, a: `${a}${tail}`, sources: uniq(rows.map((q) => q.source_url as string)) }];
 }
 
-/** Each distinct verified reset_rule, labelled with its plan(s) and feature, with only the sources of the rows it cites. */
-export function resetFaq(v: VendorData): FaqItem[] {
+/**
+ * Up to 4 distinct verified reset rules: each is listed with its plan(s) and feature and only its own sources.
+ * More than 4: one summary sentence, one sentence on where to see the reset time (only if the data has reset_visible_in),
+ * and a link to the #reset-rules table, which lists every rule plan by plan with its source_url.
+ * `tableHref` is "#reset-rules" on the limit-reset page itself; elsewhere it points at that page's table.
+ */
+export function resetFaq(v: VendorData, tableHref = `/${v.vendor.slug}/limit-reset#reset-rules`): FaqItem[] {
   const e = perPlanEntries(v, (q) => q.reset_rule);
   if (e.length === 0) return [];
-  return [
-    {
-      q: `When does the ${v.vendor.name} usage limit reset?`,
-      a: `Usage limits on ${v.vendor.name} reset on a window- or account-assigned schedule. ${e.map((x) => x.text).join(" ")}`,
-      sources: uniq(e.flatMap((x) => x.sources)),
-    },
-  ];
+  const q = `When does the ${v.vendor.name} usage limit reset?`;
+  const distinct = uniq(v.plans.flatMap((p) => p.quotas.filter((x) => x.reset_rule && x.source_url).map((x) => x.reset_rule as string)));
+  if (distinct.length <= RESET_FAQ_MAX_RULES) {
+    return [{ q, a: `Usage limits on ${v.vendor.name} reset on a window- or account-assigned schedule. ${e.map((x) => x.text).join(" ")}`, sources: uniq(e.flatMap((x) => x.sources)) }];
+  }
+  const where = uniq(v.plans.flatMap((p) => p.quotas.filter((x) => x.reset_visible_in && x.source_url).map((x) => x.reset_visible_in as string)));
+  const label = "See the reset rules by plan.";
+  const a = `Reset methods on ${v.vendor.name} differ by plan. ${where.length > 0 ? `Check the next reset time in the product at ${where.join("; ")}. ` : ""}${label}`;
+  return [{ q, a, sources: uniq(e.flatMap((x) => x.sources)), link: { label, href: tableHref } }];
 }
 
 export function whereFaq(v: VendorData): FaqItem[] {

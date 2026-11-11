@@ -54,7 +54,7 @@ export default async function LimitResetPage({ params }: { params: Promise<{ ven
   const rules = rows.filter((r) => r.q.reset_rule);
   const where = Array.from(new Set(rows.map((r) => r.q.reset_visible_in).filter((w): w is string => !!w)));
   const withOverage = plans.filter((p) => p.plan.overage_options);
-  const faq = [...resetFaq(v), ...whereFaq(v), ...poolFaq(v), ...plans.flatMap((p) => [...costFaq(p), ...limitsFaq(v, p, "limits page"), ...modelsFaq(p), ...overageFaq(p)])];
+  const faq = [...resetFaq(v, "#reset-rules"), ...whereFaq(v), ...poolFaq(v), ...plans.flatMap((p) => [...costFaq(p), ...limitsFaq(v, p, "limits page"), ...modelsFaq(p), ...overageFaq(p)])];
   const crumbs = [
     { name: "Home", path: "/" },
     { name, path: `/${slug}` },
@@ -108,7 +108,7 @@ export default async function LimitResetPage({ params }: { params: Promise<{ ven
       </div>
       <ReminderCta placement="limit-reset" />
 
-      <h2>Reset rules by plan</h2>
+      <h2 id="reset-rules">Reset rules by plan</h2>
       <div className="tablewrap">
         <table className="data">
           <caption className="sr">{name} reset rules by plan</caption>

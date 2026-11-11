@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { sourceLinks, type FaqItem } from "@/lib/faq";
 import { SourceLink } from "./SourceLink";
 
@@ -11,7 +12,14 @@ export function Faq({ items }: { items: FaqItem[] }) {
         <div key={it.q}>
           <h3>{it.q}</h3>
           <p className="prose">
-            {it.a}{" "}
+            {it.link ? (
+              <>
+                {it.a.slice(0, it.a.length - it.link.label.length)}
+                <Link href={it.link.href}>{it.link.label}</Link>
+              </>
+            ) : (
+              it.a
+            )}{" "}
             <span className="small muted">
               Source:{" "}
               {sourceLinks(it).map((s, i) => (
