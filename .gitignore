@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+# next
+.next/
+out/
+next-env.d.ts
+# env: never commit real values. Only .env.example (empty values) is tracked.
+.env
+.env.*
+!.env.example
+# misc
+*.pem
+.DS_Store
+npm-debug.log*
+*.tsbuildinfo
+.vercel
